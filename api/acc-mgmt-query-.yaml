@@ -1,0 +1,1149 @@
+swagger: '2.0'
+info:
+  version: 1.0.0
+  title: Account
+  description: Microservice  to handle all requests to Customer domain objects
+host: coatsecomm.com
+basePath: /account/api
+schemes:
+  - http
+paths:
+  '/users':
+    get:
+      tags:
+        - users
+      summary: Retrieves requestors
+      produces:
+        - application/json
+        - application/xml
+      parameters:
+        - name: customer_code
+          in: query
+          type: string
+      responses:
+        '200':
+          description: successful operation
+  '/user':
+    post:
+      tags:
+        - users
+      summary: Create or update user entity
+      parameters:
+        - name: body
+          in: body
+          schema:
+            $ref: '#/definitions/User'
+      responses:
+        '200':
+          description: successful operation
+  '/user/settings':
+    put:
+      tags:
+        - users
+      summary: Updates user profile details such as fiest name, last name, language, time format, date format, timezone, number format
+      produces:
+        - application/json
+        - application/xml
+      responses:
+        '200':
+          description: successful operation
+  '/user-by-username/{username}':
+    get:
+      tags:
+        - users
+      summary: Retrieves user by username (email)
+      produces:
+        - application/json
+        - application/xml
+      parameters:
+        - name: username
+          in: path
+          type: string
+          required: true
+      responses:
+        '200':
+          description: successful operation
+  '/user-profile/{auth0UserId}':
+    get:
+      tags:
+        - users
+      summary: Retrieves user details based on auth0UserId protected by basic auth. Should not be exposed.
+      produces:
+        - application/json
+        - application/xml
+      parameters:
+        - name: auth0UserId
+          in: path
+          type: string
+          required: true
+      responses:
+        '200':
+          description: successful operation
+  '/user/{auth0UserId}':
+    get:
+      tags:
+        - users
+      summary: Retrieves user details based on auth0UserId specified in path variable
+      produces:
+        - application/json
+        - application/xml
+      parameters:
+        - name: auth0UserId
+          in: path
+          type: string
+          required: true
+          description: auth0 User Id assigned when user is created in auth0
+        - name: projection
+          in: query
+          type: array
+          items:
+            type: string
+          required: false
+          description: >-
+            List of column names to be included in the response (if missing all
+            fields of an order will be added)
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            $ref: '#/definitions/UserResponse'
+          examples:
+            application/json:
+              recordsTotal: 1
+              data: null
+        '404':
+          description: User not found
+          schema:
+            $ref: '#/definitions/UserResponse'
+          examples:
+            application/json:
+              recordsTotal: 0
+              data: []
+              error:
+                code: 404
+                description: User is not created or active in eComm
+  '/user/{auth0UserId}/terms-and-conditions':
+    get:
+      tags:
+        - users
+      summary: Checkes if for specified user we have terms and condition accepted
+      produces:
+        - application/json
+        - application/xml
+      parameters:
+        - name: auth0UserId
+          in: path
+          type: string
+          required: true
+          description: auth0 User Id assigned when user is created in auth0
+        - name: projection
+          in: query
+          type: array
+          items:
+            type: string
+          required: false
+          description: >-
+              List of column names to be included in the response (if missing all
+              fields of an user will be added)
+      responses:
+        '200':
+          description: Terms checks successfull return json with status
+          schema:
+            $ref: '#/definitions/TermsResponse'
+          examples:
+            application/json:
+              code: 200
+              status: NeedsApproval
+              termsAndConditionText: Some text
+    post:
+      tags:
+        - users
+      summary: Updates if user accepted the terms and conditions or not
+      produces:
+        - application/json
+        - application/xml
+      parameters:
+        - name: auth0UserId
+          in: path
+          type: string
+          required: true
+          description: auth0 User Id assigned when user is created in auth0
+      responses:
+        '200':
+          description: successful operation
+  '/search':
+    get:
+      summary: Search for users
+      tags:
+        - users
+      produces:
+        - application/json
+      parameters:
+        - name: start
+          in: query
+          type: integer
+          required: false
+          description: Together with length controls the pagination. The index of the first item
+            expected in the response
+        - name: length
+          in: query
+          type: integer
+          required: false
+          description: Together with start controls the pagination
+        - name: order
+          in: query
+          type: string
+          required: false
+          description: Together with dir controls sorting. The name of the user entity attribute
+            on which sorting is perforemd
+        - name: dir
+          in: query
+          type: string
+          enum:
+            - ASC
+            - DESC
+          required: false
+          description: Together with order controls sorting. The direction of sorting
+        - name: auth0UserId
+          in: query
+          type: string
+          required: false
+          description: apply auth0UserId filter
+        - name: group
+          in: query
+          type: string
+          required: false
+          description: apply group filter
+        - name: username
+          in: query
+          type: string
+          required: false
+          description: apply username filter
+        - name: primarySalesOrgCode
+          in: query
+          type: string
+          required: false
+          description: apply primarySalesOrgCode filter
+        - name: primarySalesOrgName
+          in: query
+          type: string
+          required: false
+          description: apply primarySalesOrgName filter
+        - name: primaryCustomerCode
+          in: query
+          type: string
+          required: false
+          description: apply primaryCustomerCode filter
+        - name: primaryCustomerName
+          in: query
+          type: string
+          required: false
+          description: apply primaryCustomerName filter
+        - name: firstName
+          in: query
+          type: string
+          required: false
+          description: apply firstName filter
+        - name: lastName
+          in: query
+          type: string
+          required: false
+          description: apply lastName filter
+        - name: enableMultisoldto
+          in: query
+          type: string
+          required: false
+          description: apply enableMultisoldto filter
+        - name: shipToPartyDetails
+          in: query
+          type: string
+          required: false
+          description: apply shipToPartyDetails filter
+        - name: contactNumber
+          in: query
+          type: string
+          required: false
+          description: apply contactNumber filter
+        - name: status
+          in: query
+          type: string
+          required: false
+          description: apply status filter
+        - name: createdOn
+          in: query
+          type: string
+          required: false
+          description: apply createdOn filter
+        - name: createdBy
+          in: query
+          type: string
+          required: false
+          description: apply createdBy filter
+        - name: updatedOn
+          in: query
+          type: string
+          required: false
+          description: apply updatedOn filter
+        - name: updatedBy
+          in: query
+          type: string
+          required: false
+          description: apply updatedBy filter
+      responses:
+        200:
+          description: successfull search
+          #schema:
+            #$ref: '#/definitions/SearchOrderHeaderResponse'
+        403:
+          description: Access denied
+          #schema:
+            #$ref: '#/definitions/SearchOrderHeaderResponse'
+  '/timezones':
+    get:
+      tags:
+        - timezone
+      summary: Retrieves list of timezones
+      produces:
+        - application/json
+        - application/xml
+      responses:
+        '200':
+          description: successful operation
+  '/ship-to-parties':
+    get:
+      tags:
+        - shiptoparty
+      summary: >-
+          This microservice is a fine grained end point for selecting the required field from the coats_ship_to_parties entity.
+      description: >-
+            Currently this end point is used for populating the address informations on the order header after selecting the drop down. The response format will vary according to the projections(Column names) passing to it.
+      produces:
+        - application/json
+      parameters:
+        - in: query
+          name: sales_org_code
+          type: string
+          required: true
+          description: The sales-org-code in which the corresponding ship to party belongs to. IT IS THE CLUSTERING KEY OF THE ENTITY AND ITS MANDATORY.
+        - in: query
+          name: ship_to_party
+          type: string
+          required: true
+          description: The particular ship to party code. IT IS THE PARTITION KEY OF THE ENTITY and its mandatory for the unique ship to party selection.
+        - in: query
+          name: include
+          type: string
+          required: true
+          description: The columns need to be selected from the entity.
+      responses:
+        200:
+          description: OK
+          #schema:
+            #$ref: '#/definitions/ShipToPartyresponse'
+  '/shiptoparties':
+    post:
+      tags:
+        - shiptoparty
+      summary: Create or update ship to party entity
+      parameters:
+        - name: body
+          in: body
+          schema:
+            $ref: '#/definitions/ShipToParty'
+      responses:
+        '200':
+          description: successful operation
+  '/shipToParties':
+    get:
+      tags:
+        - shiptoparty
+      summary: Retrieves list current user ship to parties
+      produces:
+        - application/json
+        - application/xml
+      parameters:
+        - name: salesOrg
+          in: query
+          type: string
+      responses:
+        '200':
+          description: successful operation
+  '/shipToParties-from-sorg':
+    get:
+      tags:
+        - shiptoparty
+      summary: Retrieve ship to parties filtered by sales orgs
+      produces:
+        - application/json
+        - application/xml
+      parameters:
+        - name: sales_org_codes
+          in: query
+          type: string
+      responses:
+        '200':
+          description: successful operation
+  '/payer':
+    post:
+      summary: Saves new Payer
+      tags:
+        - payer
+      consumes:
+        - application/json
+        - application/xml
+      produces:
+        - application/json
+        - application/xml
+      parameters:
+        - name: payer
+          in: body
+          schema:
+            $ref: '#/definitions/Payer'
+          required: true
+          description: Payers to be updated
+      responses:
+         '400':
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/PayerResponse'
+          examples:
+            application/json:
+              code: 400
+              message: "Insert to failed"
+  '/customers':
+    get:
+      tags:
+        - customer
+      summary: >-
+          This end point will behave as auto suggestion end point also as a fine grain end point.
+      description: >-
+            If the we pass starts with with the include projection it will act as an auto suggestion end point if we pass customer code and salesorgcode with the projectios this will act as a fine grain end point.
+      produces:
+        - application/json
+      parameters:
+        - in: query
+          name: starts_with
+          type: string
+          required: false
+          description: The starting letters of the customer name. It will be captured while the users keying in the customer auto suggestion box.
+        - in: query
+          name: customer_code
+          type: string
+          required: false
+          description: the customer code of the particular customer for identifying it uniquely.
+        - in: query
+          name: sales_org_code
+          type: array
+          items:
+            collectionFormat: csv
+          description: sales org code of the costomer
+          required: true
+        - in: query
+          name: include
+          type: array
+          items:
+            collectionFormat: csv
+          required: false
+          description: The columns need to be selected from the entity.
+      responses:
+        200:
+          description: OK
+          #schema:
+            #$ref: '#/definitions/AutoSuggestResponse'
+        400:
+          description: Should not pass both customer_code and starts_with.
+          #schema:
+            #$ref: '#/definitions/400Customer'
+        403:
+          description: Access Denied
+          #schema:
+            #$ref: '#/definitions/403'
+        404:
+          description: Results Not Found
+          #schema:
+            #$ref: '#/definitions/404'
+    post:
+      tags:
+        - customer
+      summary: Update user details
+      produces:
+        - application/json
+        - application/xml
+      parameters:
+        - name: body
+          in: body
+          schema:
+            $ref: '#/definitions/Customers'
+      responses:
+        '200':
+          description: successful operation
+  '/search-customers-map-by-name-or-code':
+    post:
+      tags:
+        - customer
+      summary: Retrieve customer
+      parameters:
+        - name: body
+          in: body
+          schema:
+            $ref: '#/definitions/ListStrings'
+      responses:
+        '200':
+          description: successful operation
+  '/customers-from-sorg':
+    get:
+      tags:
+        - customer
+      summary: Retrieve customers based on sales org codes
+      parameters:
+        - name: sales_org_codes
+          in: query
+          type: string
+      responses:
+        '200':
+          description: successful operation
+  '/buyinghouse':
+    post:
+      tags:
+        - buyinghouse
+      summary: Saves new Buying House
+      consumes:
+        - application/json
+        - application/xml
+      produces:
+        - application/json
+        - application/xml
+      parameters:
+        - name: buyingHouse
+          in: body
+          schema:
+            $ref: '#/definitions/BuyingHouse'
+          required: true
+          description: Buying house to be updated
+      responses:
+         '400':
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/BuyingHouseResponse'
+          examples:
+            application/json:
+              code: 400
+              message: "Insert to failed"
+  '/businessprincipals':
+    post:
+      tags:
+        - businessprincipal
+      summary: Saves new business principal
+      consumes:
+        - application/json
+        - application/xml
+      produces:
+        - application/json
+        - application/xml
+      parameters:
+        - name: businessPrincipal
+          in: body
+          schema:
+            $ref: '#/definitions/BusinessPrincipal'
+          required: true
+          description: business principal to be updated
+      responses:
+         '400':
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/BusinessPrincipalResponse'
+          examples:
+            application/json:
+              code: 400
+              message: "Insert to failed"
+  '/buyers':
+    get:
+      tags:
+        - businessprincipal
+      summary: >-
+        Via the accessing User, you can fetch the buyers of the User's corresponding
+        customers. If the user has no Customers assigned, fetching all buyers.
+      description: >-
+        Returns Business Principals (Buyers) corresponding to the Customers
+        assigned to the User accessing this service. If the User has no
+        Customers assigned, then all available Buyers are returned. Can be
+        used to populate drop downs.
+      produces:
+        - application/json
+      #parameters:
+        #none (just the User represented in header)
+      responses:
+        '200':
+          description: search results matching criteria
+          schema:
+            $ref: '#/definitions/BusinessPrincipalsResponse'
+        '400':
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/BusinessPrincipalsResponse'
+          examples:
+            application/json:
+              recordsTotal: 0
+              data: []
+              error:
+                code: 400
+                description: Bad Request
+        '403':
+          description: Access Denied
+          schema:
+            $ref: '#/definitions/BusinessPrincipalsResponse'
+          examples:
+            application/json:
+              recordsTotal: 0
+              data: []
+              error:
+                code: 403
+                description: Logged In User does not have access
+        '404':
+          description: Not Found
+          schema:
+            $ref: '#/definitions/BusinessPrincipalsResponse'
+          examples:
+            application/json:
+              recordsTotal: 0
+              data: []
+              error:
+                code: 404
+                description: Business Principals not found for User
+
+definitions:
+  UserResponse:
+    type: object
+    properties:
+      recordsTotal:
+        type: integer
+      data:
+        type: array
+        items:
+          $ref: '#/definitions/User'
+      error:
+        type: object
+        $ref: '#/definitions/Error'
+  User:
+    type: object
+    properties:
+      'auth0UserId:':
+        type: string
+      username:
+        type: string
+      firstName:
+        type: string
+      lastName:
+        type: string
+      userType:
+        type: string
+      contactNumber:
+        type: string
+      enableSampleOrderCancellation:
+        type: boolean
+      timezone:
+        type: string
+      languageCode:
+        type: string
+      dateFormat:
+        type: string
+      timeFormat:
+        type: string
+      termsConditionsAgreed:
+        type: boolean
+      termsConditionsAgreedDate:
+        type: string
+        format: date-time
+      enableOrderResponseMail:
+        type: string
+      enableBulkOrderShipNoticeMail:
+        type: boolean
+      emailNotifications:
+        type: array
+        items:
+          type: string
+      enableSamoleOrderShipNoticeMail:
+        type: boolean
+      enableSampleOrderUpload:
+        type: boolean
+      enableOrderUpdateNotification:
+        type: boolean
+      enableSftpEmailNotification:
+        type: boolean
+      authorizedPayer:
+        type: boolean
+      primaryCustomerCode:
+        type: string
+      primaryCustomerName:
+        type: string
+      primarySalesOrgCode:
+        type: string
+      primarySalesOrgName:
+        type: string
+      enableMultisoldto:
+        type: boolean
+      status:
+        type: boolean
+      shipToPartyCode:
+        type: object
+        additionalProperties:
+          $ref: '#/definitions/ShipToPartiesForUser'
+      salesOrgCase:
+        type: object
+        additionalProperties:
+          $ref: '#/definitions/SalesOrgCaseForUser'
+      country:
+        type: object
+        additionalProperties:
+          $ref: '#/definitions/CountryForUser'
+      coatsSalesOrg:
+        type: object
+        additionalProperties:
+          $ref: '#/definitions/CoatsSalesOrgForUser'
+      coatsHub:
+        type: object
+        additionalProperties:
+          $ref: '#/definitions/CoatsHubForUser'
+  ShipToPartiesForUser:
+    type: object
+    properties:
+      shipToPartyName:
+        type: string
+      shipToPartyMappedOn:
+        type: string
+        format: date-time
+      shitpToPartyMappeBy:
+        type: string
+  SalesOrgCaseForUser:
+    type: object
+    properties:
+      customerCode:
+        type: string
+      customerName:
+        type: string
+      salesOrgCode:
+        type: string
+      salesOrgName:
+        type: string
+  CountryForUser:
+    type: object
+    properties:
+      countryCode:
+        type: string
+      countryName:
+        type: string
+  CoatsSalesOrgForUser:
+    type: object
+    properties:
+      salesOrgCode:
+        type: string
+      salesOrgName:
+        type: string
+  CoatsHubForUser:
+    type: object
+    properties:
+      hubCode:
+        type: string
+      hubName:
+        type: string
+  Error:
+    type: object
+    properties:
+      code:
+        type: string
+      description:
+        type: string
+  TermsResponse:
+    type: object
+    properties:
+      status:
+        type: string
+      termsAndConditionText:
+        type: string
+  RequesterResponse:
+    type: object
+    properties:
+      recordsTotal:
+        type: integer
+        example: 1
+      data:
+        type: array
+        items:
+          $ref: '#/definitions/Requester'
+  Requester:
+    type: object
+    required:
+      - firstName
+      - lastName
+    properties:
+      firstName:
+        type: string
+        example: Aaron
+      lastName:
+        type: string
+        example: Joshua
+  ShipToPartyAddressResponse:
+    type: object
+    properties:
+      recordsTotal:
+        type: integer
+        example: 1
+      data:
+        type: array
+        items:
+          $ref: '#/definitions/ShipToPartyAddress'
+  ShipToPartyAddress:
+    type: object
+    required:
+      - shipToPartyName
+      - addressLineOne
+      - addressLineTwo
+      - street
+      - city
+      - state
+      - zipCode
+    properties:
+      shipToPartyName:
+        type: string
+        example: Coats australia
+      addressLineOne:
+        type: string
+        example: st luise st.
+      addressLineTwo:
+        type: string
+        example: second cross
+      street:
+        type: string
+        example: church street
+      city:
+        type: string
+        example: Manhattan
+      state:
+        type: string
+        example: Indiana
+      zipCode:
+        type: string
+        example: 34562863
+  ShipToPartyReponse:
+    type: object
+    properties:
+      recordsTotal:
+        type: integer
+        example: 1
+      data:
+        type: array
+        items:
+          $ref: '#/definitions/ShipToParty'
+  ShipToParty:
+    type: object
+    required:
+      - ship_to_party_name
+      - customer_ship_to_party_name
+    properties:
+      sales_org_code:
+        type: string
+        example: DE50
+      ship_to_party_code:
+        type: string
+        example: 172591
+      ship_to_party_name:
+        type: string
+        example: Coats indonesia
+      customer_ship_to_party_name:
+        type: string
+        example: customer ship to party
+      status:
+        type: boolean
+      createdOn:
+        type: string
+        format: date-time
+      createdBy:
+        type: string
+      updatedOn:
+        type: string
+        format: date-time
+      updatedBy:
+        type: string
+  SubAccountResponse:
+    type: object
+    properties:
+      recordsTotal:
+        type: integer
+        example: 1
+      data:
+        type: array
+        items:
+          $ref: '#/definitions/SubAccount'
+  SubAccount:
+    type: object
+    required:
+      - payer_name
+    properties:
+      payer_name:
+        type: string
+        example: China life insurance
+  BuyerResponse:
+    type: object
+    properties:
+      recordsTotal:
+        type: integer
+        example: 1
+      data:
+        type: array
+        items:
+          $ref: '#/definitions/Buyers'
+  Buyers:
+    type: object
+    required:
+      - business_principal_name
+      - compliance_flag
+    properties:
+      business_principal_name:
+        type: string
+        example: Payment Inc
+      compliance_flag:
+        type: boolean
+  BuyinHouseResponse:
+    type: object
+    properties:
+      recordsTotal:
+        type: integer
+        example: 1
+      data:
+        type: array
+        items:
+          $ref: '#/definitions/BuyingHouse'
+  BuyingHouse:
+    type: object
+    required:
+      - buyinghousename
+    properties:
+      buyinghousename:
+        type: string
+        example: Buying House 1
+  Settings:
+    type: object
+    required:
+      - requiredDate
+      - buyingHouse
+      - instructionsToCoatsWarehouse
+      - subAccount
+      - style
+      - buyerSalesOrderNumber
+      - printOptionsheader
+      - printOptionsLines
+    properties:
+      requiredDate:
+        type: boolean
+      buyingHouse:
+        type: boolean
+      instructionsToCoatsWarehouse:
+        type: boolean
+      subAccount:
+        type: boolean
+      style:
+        type: boolean
+      buyerSalesOrderNumber:
+        type: boolean
+      printOptionsheader:
+        type: boolean
+      printOptionsLines:
+        type: boolean
+  CustomersuggesResponse:
+    type: object
+    properties:
+      recordsTotal:
+        type: integer
+        example: 2
+      data:
+        type: array
+        items:
+          $ref: '#/definitions/Customers'
+  CustomerSettingsResponse:
+    type: object
+    properties:
+      recordsTotal:
+        type: integer
+        example: 1
+      data:
+        type: array
+        items:
+          $ref: '#/definitions/Settings'
+  Customers:
+    type: object
+    required:
+      - customername
+      - customercode
+    properties:
+      customername:
+        type: string
+        example: Life easy
+      customercode:
+        type: string
+        example: ccode1323
+  BusinessPrincipalResponse:
+    type: object
+    properties:
+      code:
+        type: integer
+      message:
+        type: string
+      data:
+        $ref: '#/definitions/BusinessPrincipal'
+  BusinessPrincipalsResponse:
+    type: object
+    properties:
+      recordsTotal:
+        type: integer
+        example: 1
+      data:
+        type: array
+        items:
+          $ref: '#/definitions/BusinessPrincipal'
+  BuyingHouseResponse:
+    type: object
+    properties:
+      code:
+        type: integer
+      message:
+        type: string
+      data:
+        $ref: '#/definitions/BuyingHouse'
+  BusinessPrincipal:
+    type: object
+    properties:
+      createdOn:
+        type: string
+        format: date-time
+      createdBy:
+        type: string
+      updatedOn:
+        type: string
+        format: date-time
+      updatedBy:
+        type: string
+      status:
+        type: boolean
+      businessPrincipalName:
+        type: string
+      businessPrincipalCode:
+        type: string
+      lightSourceOne:
+        type: integer
+      lightSourceTwo:
+        type: integer
+      lightSourceThree:
+        type: integer
+  PayerResponse:
+    type: object
+    properties:
+      code:
+        type: integer
+      message:
+        type: string
+      data:
+        $ref: '#/definitions/Payer'
+  Payer:
+    type: object
+    properties:
+      createdOn:
+        type: string
+        format: date-time
+      createdBy:
+        type: string
+      updatedOn:
+        type: string
+        format: date-time
+      updatedBy:
+        type: string
+      status:
+        type: boolean
+      salesOrgCode:
+        type: string
+      payerCode:
+        type: string
+      payerName:
+        type: string
+      payerComment:
+        type: string
+  WarehouseInstructionsResponse:
+    type: object
+    properties:
+      code:
+        type: integer
+      message:
+        type: string
+      data:
+        $ref: '#/definitions/WarehouseInstructions'
+  WarehouseInstructions:
+    type: object
+    properties:
+      createdOn:
+        type: string
+        format: date-time
+      createdBy:
+        type: string
+      updatedOn:
+        type: string
+        format: date-time
+      updatedBy:
+        type: string
+      status:
+        type: boolean
+      salesOrgCode:
+        type: string
+      warehouseInstructions:
+        type: string
+  CustomersResponse:
+    type: object
+    properties:
+      code:
+        type: integer
+      message:
+        type: string
+      data:
+        $ref: '#/definitions/Customers'
+  SearchUserResponse:
+    type: object
+    properties:
+      data:
+        type: array
+        items:
+          $ref: '#/definitions/SearchUser'
+      recordsFiltered:
+        type: integer
+        description: total number of records after filtering is applied
+      recordsTotal:
+        type: integer
+        description: total number of records
+      code:
+        type: integer
+        description: http status code
+      message:
+        type: string
+        description: error description
+  SearchUser:
+    type: object
+    properties:
+        auth0UserId:
+          type: string
+        group:
+          type: string
+        username:
+          type: string
+        primarySalesOrgCode:
+          type: string
+        primarySalesOrgName:
+          type: string
+        primaryCustomerCode:
+          type: string
+        primaryCustomerName:
+          type: string
+        firstName:
+          type: string
+        lastName:
+          type: string
+  ListStrings:
+    type: array
+    items:
+      type: string
